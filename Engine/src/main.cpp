@@ -95,16 +95,16 @@ int main()
 	// ------------------------------------------------------------------------
 	// these are our vertices for a basic rectangle
 	float first_triangle[] = {
-		// first triangle
-		-0.5f, -0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f,
-		 0.0f,  0.5f, 0.0f,
+		// first triangle pos		// colors
+		 0.5f, -0.5f, 0.0f,			1.0f, 0.0f, 0.0f,	// bottom right
+		-0.5f, -0.5f, 0.0f,			0.0f, 1.0f, 0.0f,	// bottom left
+		 0.0f,  0.5f, 0.0f,			0.0f, 0.0f, 1.0f	// top
 	};
 	float second_triangle[] = {
-		// second triangle
-		 0.7f, 0.4f, 0.0f,
-		 0.95f, 0.4f, 0.0f,
-		 0.8f, 0.8f, 0.0f
+		// second triangle		// colors
+		 0.95f, 0.4f, 0.0f,		1.0f, 0.0f, 0.0f,
+		 0.7f, 0.4f, 0.0f,		0.0f, 1.0f, 0.0f,
+		 0.8f, 0.8f, 0.0f,		0.0f, 0.0f, 1.0f
 	};
 
 	// VAO, VBO, AND EBO bullshits.
@@ -116,16 +116,24 @@ int main()
 	glBindVertexArray(VAOs[0]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(first_triangle), first_triangle, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	// pos attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	// color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 	// second set of VAOs and VBOs
 	glBindVertexArray(VAOs[1]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(second_triangle), second_triangle, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	// pos attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-
+	// color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	
 	// uncomment this call to draw in wireframe polygons.
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -141,12 +149,6 @@ int main()
 		
 		glUseProgram(shaderProgram);
 		
-		// drawing bullshits
-		float timeValue = (float)glfwGetTime();
-		float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
-
 		// rendering the gd triangles
 		glBindVertexArray(VAOs[0]);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
