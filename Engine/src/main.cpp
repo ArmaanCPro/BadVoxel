@@ -96,10 +96,16 @@ int main()
 	// texture wrapping
 	// load the texture "container.jpg"
 	// OpenGL generate texture
-	unsigned int texture;
-	glGenTextures(1, &texture);
-	glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture
-	glBindTexture(GL_TEXTURE_2D, texture);
+	unsigned int texture1, texture2;
+	glGenTextures(1, &texture1);
+	glGenTextures(1, &texture2);
+	
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture1);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+
+	glActiveTexture(GL_TEXTURE0);
 	// set the texture wrapping/filtering options on the currently bound texture object
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
@@ -117,6 +123,18 @@ int main()
 		std::cout << "Failed to load texture" << std::endl;
 	stbi_image_free(data);
 
+	// load the second texture
+	glActiveTexture(GL_TEXTURE1);
+	data = stbi_load("shaders/awesomeface.png", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+
+	shader.use();
+	glUniform1i(glGetUniformLocation(shader.ID, "texture1"), 0);
+	shader.SetInt("texture2", 1);
 	
 	// uncomment this call to draw in wireframe polygons.
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -135,6 +153,8 @@ int main()
 
 		float horizOffset = (sin((float)glfwGetTime()) * 0.5f);
 		shader.SetFloat("uHorizOffset", horizOffset);
+
+
 		
 		// rendering the gd triangles
 		glBindVertexArray(VAO);
@@ -150,7 +170,8 @@ int main()
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
-	glDeleteTextures(1, &texture);
+	glDeleteTextures(1, &texture1);
+	glDeleteTextures(1, &texture2);
 
 	glfwTerminate(); // automatically frees up our memory
 	window = nullptr;

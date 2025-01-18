@@ -11,7 +11,7 @@ uniform float uHorizOffset;
 
 void main()
 {
-    gl_Position = vec4(aPos.x + uHorizOffset, aPos.y * -1.0, aPos.z, 1.0);
+    gl_Position = vec4(aPos.x + uHorizOffset, aPos.y, aPos.z, 1.0);
     ourColor = aColor;
     TexCoord = aTexCoord;
 }
