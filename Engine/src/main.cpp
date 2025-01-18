@@ -135,10 +135,11 @@ int main()
 	glGenBuffers(1, &EBO);
 	// bind VAO first, then bind and set vertex buffer(s), then bind and set EBO, and then configure vertex attribute(s)
 	glBindVertexArray(VAO);
-	
+
+	// copy vertices array into a vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, VBO); // opengl has many types of buffer objects. vertex buffer object is GL_ARRAY_BUFFER
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // copies our vertices into the currently bound GL_ARRAY_BUFFER buffer (which is our VBO)
-
+	// copy index array into an element buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
@@ -150,7 +151,7 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// uncomment this call to draw in wireframe polygons.
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	// render loop
 	while (!glfwWindowShouldClose(window))
@@ -165,7 +166,6 @@ int main()
 		// drawing a triangle
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		
 		// check and call events and swap the buffers
