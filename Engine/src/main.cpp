@@ -107,6 +107,9 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 		
 		shader.use();
+
+		float horizOffset = (sin((float)glfwGetTime()) * 0.5f);
+		shader.SetFloat("uHorizOffset", horizOffset);
 		
 		// rendering the gd triangles
 		glBindVertexArray(VAOs[0]);
