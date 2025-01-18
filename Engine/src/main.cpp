@@ -19,6 +19,15 @@ void processInput(GLFWwindow *window);
 const unsigned int SCREEN_WIDTH = 800;
 const unsigned int SCREEN_HEIGHT = 600;
 
+// camera statics
+static glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
+static glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+static glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
+
+// delta time
+float deltaTime = 0.0f; // time between cur frame and last frame
+float lastFrame = 0.0f; // time of last frame
+
 int main()
 {
 	// initialization
@@ -207,6 +216,11 @@ int main()
 		// input
 		processInput(window);
 
+		// delta time calculations
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
 		// rendering commands here
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -222,10 +236,7 @@ int main()
 
 		// declare transform matrices
 		glm::mat4 view = glm::mat4(1.0f);
-		const float radius = 10.0f;
-		float camX = (float)sin(glfwGetTime()) * radius;
-		float camZ = (float)cos(glfwGetTime()) * radius;
-		view = glm::lookAt(glm::vec3{ camX, 0.0f, camZ }, glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ 0.0f, 1.0f, 0.0f });
+		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 		shader.SetMat4("view", view);
 		
 		// rendering the gd triangles
@@ -268,4 +279,19 @@ void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
+
+	const float cameraSpeed = 10.0f * deltaTime;
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		cameraPos += cameraSpeed * cameraFront;
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		cameraPos -= cameraSpeed * cameraFront;
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed; // calculates the right vector of the camera
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		cameraPos += cameraSpeed * cameraUp;
+	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+		cameraPos -= cameraSpeed * cameraUp;
 }
