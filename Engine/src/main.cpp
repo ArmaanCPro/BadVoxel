@@ -27,6 +27,13 @@ const char* fragmentShaderSource = "#version 330 core\n"
 		"FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 	"}\0";
 
+const char* fragmentShaderSource_yellow = "#version 330 core\n"
+	"out vec4 FragColor;\n"
+	"void main()\n"
+	"{\n"
+		"FragColor = vec4(0.8f, 0.8f, 0.1f, 1.0f);\n"
+	"}\0";
+
 int main()
 {
 	// initialization
@@ -111,8 +118,19 @@ int main()
 			std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 		}
 	}
-	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
+
+	// yellow frag shader
+	unsigned int fragmentShader_yellow = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader_yellow, 1, &fragmentShaderSource_yellow, nullptr);
+	glCompileShader(fragmentShader_yellow);
+
+	unsigned int shaderProgram_yellow = glCreateProgram();
+	glAttachShader(shaderProgram_yellow, vertexShader);
+	glAttachShader(shaderProgram_yellow, fragmentShader_yellow);
+	glLinkProgram(shaderProgram_yellow);
+	
+	glDeleteShader(vertexShader);
 
 	// setting up vertex data (and buffer(s)) and configuring vertex attributes
 	// ------------------------------------------------------------------------
@@ -150,7 +168,7 @@ int main()
 	glEnableVertexAttribArray(0);
 
 	// uncomment this call to draw in wireframe polygons.
-	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	// render loop
 	while (!glfwWindowShouldClose(window))
@@ -167,6 +185,7 @@ int main()
 		glBindVertexArray(VAOs[0]);
 		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glUseProgram(shaderProgram_yellow);
 		glBindVertexArray(VAOs[1]);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		
