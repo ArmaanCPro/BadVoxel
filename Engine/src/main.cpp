@@ -6,6 +6,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stb_image.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Shader.h"
 
@@ -152,10 +155,13 @@ int main()
 		
 		shader.use();
 
-		float horizOffset = (sin((float)glfwGetTime()) * 0.5f);
-		shader.SetFloat("uHorizOffset", horizOffset);
+		glm::mat4 trans = glm::mat4(1.0f);
+		float horizOffset = (sin((float)glfwGetTime()) / 2.0f);
+		trans = glm::translate(trans, glm::vec3(horizOffset, 0.0f, 0.0f));
+		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
 
-
+		unsigned int transformLoc = glGetUniformLocation(shader.ID, "transform");
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 		
 		// rendering the gd triangles
 		glBindVertexArray(VAO);
