@@ -100,15 +100,11 @@ int main()
 	// load the texture "container.jpg"
 	// OpenGL generate texture
 	unsigned int texture1, texture2;
+	// texture 1
+	glActiveTexture(GL_TEXTURE0);
 	glGenTextures(1, &texture1);
-	glGenTextures(1, &texture2);
-	
-	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture1);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, texture2);
 
-	glActiveTexture(GL_TEXTURE0);
 	// set the texture wrapping/filtering options on the currently bound texture object
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
@@ -126,9 +122,17 @@ int main()
 	else
 		std::cout << "Failed to load texture" << std::endl;
 	stbi_image_free(data);
-
-	// load the second texture
+	
+	// texture 2
 	glActiveTexture(GL_TEXTURE1);
+	glGenTextures(1, &texture2);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+	// set the texture wrapping/filtering options on the currently bound texture object
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load image and create texture
 	data = stbi_load("shaders/awesomeface.png", &width, &height, &nrChannels, 0);
 	if (data)
 	{
@@ -136,6 +140,7 @@ int main()
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 
+	// tell opengl for each sampler which texture unit it belongs
 	shader.use();
 	glUniform1i(glGetUniformLocation(shader.ID, "texture1"), 0);
 	shader.SetInt("texture2", 1);
@@ -152,16 +157,38 @@ int main()
 		// rendering commands here
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		
+
+		// bind textures on corresponding texture units
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture1);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture2);
+
+		// activate shader
 		shader.use();
 
+		// spinning and moving bullshits
 		glm::mat4 trans = glm::mat4(1.0f);
 		float horizOffset = (sin((float)glfwGetTime()) / 2.0f);
 		trans = glm::translate(trans, glm::vec3(horizOffset, 0.0f, 0.0f));
 		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
 
+		//trans = glm::identity<glm::mat4>();
+
 		unsigned int transformLoc = glGetUniformLocation(shader.ID, "transform");
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
+		// send transformation matrices to shader
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		glm::mat4 view = glm::mat4(1.0f);
+		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+		glm::mat4 projection = glm::mat4(1.0f);
+		projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+		shader.SetMat4("model", model);
+		shader.SetMat4("view", view);
+		// the projection matrix should be set outside of the loop because it rarely changes
+		shader.SetMat4("projection", projection);
 		
 		// rendering the gd triangles
 		glBindVertexArray(VAO);
