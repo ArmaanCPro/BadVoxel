@@ -117,12 +117,13 @@ int main()
 	// setting up vertex data (and buffer(s)) and configuring vertex attributes
 	// ------------------------------------------------------------------------
 	// these are our vertices for a basic rectangle
-	float vertices[] = {
+	float first_triangle[] = {
 		// first triangle
 		-0.5f, -0.5f, 0.0f,
 		 0.5f, -0.5f, 0.0f,
 		 0.0f,  0.5f, 0.0f,
-
+	};
+	float second_triangle[] = {
 		// second triangle
 		 0.7f, 0.4f, 0.0f,
 		 0.95f, 0.4f, 0.0f,
@@ -130,32 +131,23 @@ int main()
 	};
 
 	// VAO, VBO, AND EBO bullshits.
-	unsigned int VAO_1, VAO_2, VBO_1, VBO_2;
-	glGenVertexArrays(1, &VAO_1);
-	glGenVertexArrays(1, &VAO_2);
-	glGenBuffers(1, &VBO_1);
-	glGenBuffers(1, &VBO_2);
-	// bind VAO first, then bind and set vertex buffer(s), then bind and set EBO, and then configure vertex attribute(s)
-	glBindVertexArray(VAO_1);
-
-	// copy vertices array into a vertex buffer
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_1); // opengl has many types of buffer objects. vertex buffer object is GL_ARRAY_BUFFER
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // copies our vertices into the currently bound GL_ARRAY_BUFFER buffer (which is our VBO)
-
-	// telling opengl how to interpret our vertex data
+	unsigned int VAOs[2], VBOs[2];
+	glGenVertexArrays(2, VAOs);
+	glGenBuffers(2, VBOs);
+	
+	// bind and setup the first set of vaos and vbos
+	glBindVertexArray(VAOs[0]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(first_triangle), first_triangle, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	glBindVertexArray(VAO_2);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_2);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	// telling opengl how to interpret our vertex data
+	// second set of VAOs and VBOs
+	glBindVertexArray(VAOs[1]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(second_triangle), second_triangle, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-
-	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// uncomment this call to draw in wireframe polygons.
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -172,11 +164,11 @@ int main()
 
 		// drawing a triangle
 		glUseProgram(shaderProgram);
-		glBindVertexArray(VAO_1);
+		glBindVertexArray(VAOs[0]);
 		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glBindVertexArray(VAO_2);
-		glDrawArrays(GL_TRIANGLES, 3, 6);
+		glBindVertexArray(VAOs[1]);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 		
 		// check and call events and swap the buffers
 		glfwSwapBuffers(window);
@@ -185,8 +177,8 @@ int main()
 
 
 	// optional. deallocating resources
-	glDeleteVertexArrays(1, &VAO_1);
-	glDeleteBuffers(1, &VBO_1);
+	glDeleteVertexArrays(2, VAOs);
+	glDeleteBuffers(2, VBOs);
 	glDeleteProgram(shaderProgram);
 
 	glfwTerminate(); // automatically frees up our memory
