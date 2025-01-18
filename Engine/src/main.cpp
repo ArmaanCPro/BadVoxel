@@ -222,7 +222,7 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		// delta time bullshits
-		float currentFrame = glfwGetTime();
+		float currentFrame = (float)glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 		
