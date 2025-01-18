@@ -5,6 +5,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <stb_image.h>
 
 #include "Shader.h"
 
@@ -66,6 +67,12 @@ int main()
 		 0.8f, 0.8f, 0.0f,		0.0f, 0.0f, 1.0f
 	};
 
+	float texCoords[] = {
+		0.0f, 0.0f,		// lower-left corner
+		1.0f, 0.0f,		// lower-right corner
+		0.5f, 1.0f		// top-center corner
+	};
+
 	// VAO, VBO, AND EBO bullshits.
 	unsigned int VAOs[2], VBOs[2];
 	glGenVertexArrays(2, VAOs);
@@ -92,6 +99,34 @@ int main()
 	// color attribute
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+
+	// texture bullshits
+	// -----------------
+	// texture wrapping
+	// load the texture "container.jpg"
+	// OpenGL generate texture
+	unsigned int texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	// set the texture wrapping/filtering options on the currently bound texture object
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	// load and generate the texture
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load("shaders/container.jpg", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+		std::cout << "Failed to load texture" << std::endl;
+	stbi_image_free(data);
+
+	
+
 	
 	// uncomment this call to draw in wireframe polygons.
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

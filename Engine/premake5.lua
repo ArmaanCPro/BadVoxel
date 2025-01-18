@@ -5,19 +5,23 @@ project "Engine"
    targetdir "bin/%{cfg.buildcfg}"
    staticruntime "off"
 
-   files { "src/**.h", "src/**.cpp", "shaders/**.glsl" }
+   files { "src/**.h", "src/**.cpp", "shaders/**.glsl", "shaders/**.jpg", "shaders/**.png",
+      "vendor/stb_image/stb_image.h"
+   }
 
    includedirs
    {
       "src",
 
       "vendor/glfw/include",
-      "vendor/Glad/include"
+      "vendor/Glad/include",
+      "vendor/stb_image"
    }
 
    defines
    {
-      "GLFW_INCLUDE_NONE"
+      "GLFW_INCLUDE_NONE",
+      "STB_IMAGE_IMPLEMENTATION"
    }
 
    links
