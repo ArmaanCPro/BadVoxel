@@ -1,38 +1,21 @@
 #include <iostream>
-
+#include <fstream>
+#include <filesystem>
 #include <Windows.h>
+
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
+std::string readShaderCode(const char* filePath);
 
 // screen settings
 const unsigned int SCREEN_WIDTH = 800;
 const unsigned int SCREEN_HEIGHT = 600;
 
-// vertex shader source code. messy for now
-const char* vertexShaderSource = "#version 330 core\n"
-	"layout (location = 0) in vec3 aPos;\n"
-	"void main()\n"
-	"{\n"
-		"gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-	"}\0";
-
-// fragment shader source code
-const char* fragmentShaderOrangeSource = "#version 330 core\n"
-	"out vec4 FragColor;\n"
-	"void main()\n"
-	"{\n"
-		"FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-	"}\0";
-
-const char* fragmentShaderYellowSource = "#version 330 core\n"
-	"out vec4 FragColor;\n"
-	"void main()\n"
-	"{\n"
-		"FragColor = vec4(0.8f, 0.8f, 0.1f, 1.0f);\n"
-	"}\0";
+std::string vertexShaderSource = readShaderCode("shaders/vertex.glsl");
+std::string fragmentShaderSource = readShaderCode("shaders/fragment.glsl");
 
 int main()
 {
@@ -70,24 +53,39 @@ int main()
 	// -------------------------------------
 	// shader initialization bullshits
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	unsigned int fragmentShaderOrange = glCreateShader(GL_FRAGMENT_SHADER);
-	unsigned int fragmentShaderYellow = glCreateShader(GL_FRAGMENT_SHADER);
-	unsigned int shaderProgramOrange = glCreateProgram();
-	unsigned int shaderProgramYellow = glCreateProgram();
+	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	unsigned int shaderProgram = glCreateProgram();
 	// setting up shader sources
-	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
+	const char* temp = vertexShaderSource.c_str();
+	glShaderSource(vertexShader, 1, &temp, nullptr);
 	glCompileShader(vertexShader);
-	glShaderSource(fragmentShaderOrange, 1, &fragmentShaderOrangeSource, nullptr);
-	glCompileShader(fragmentShaderOrange);
-	glShaderSource(fragmentShaderYellow, 1, &fragmentShaderYellowSource, nullptr);
-	glCompileShader(fragmentShaderYellow);
-	// link the first program
-	glAttachShader(shaderProgramOrange, vertexShader);
-	glAttachShader(shaderProgramOrange, fragmentShaderOrange);
-	glLinkProgram(shaderProgramOrange);
-	glAttachShader(shaderProgramYellow, vertexShader);
-	glAttachShader(shaderProgramYellow, fragmentShaderYellow);
-	glLinkProgram(shaderProgramYellow);
+	const char* temp2 = fragmentShaderSource.c_str();
+	glShaderSource(fragmentShader, 1, &temp2, nullptr);
+	glCompileShader(fragmentShader);
+	// link the program
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+	glLinkProgram(shaderProgram);
+
+	int success;
+	char infoLog[512];
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+	if (!success) {
+		glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
+		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+	}
+
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+	if (!success) {
+		glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
+		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+	}
+
+	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+	if (!success) {
+		glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+	}
 
 	// setting up vertex data (and buffer(s)) and configuring vertex attributes
 	// ------------------------------------------------------------------------
@@ -138,11 +136,10 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// drawing a triangle
-		glUseProgram(shaderProgramOrange);
+		glUseProgram(shaderProgram);
 		glBindVertexArray(VAOs[0]);
 		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glUseProgram(shaderProgramYellow);
 		glBindVertexArray(VAOs[1]);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		
@@ -155,8 +152,7 @@ int main()
 	// optional. deallocating resources
 	glDeleteVertexArrays(2, VAOs);
 	glDeleteBuffers(2, VBOs);
-	glDeleteProgram(shaderProgramYellow);
-	glDeleteProgram(shaderProgramOrange);
+	glDeleteProgram(shaderProgram);
 
 	glfwTerminate(); // automatically frees up our memory
 	window = nullptr;
@@ -172,4 +168,28 @@ void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+
+std::string readShaderCode(const char* filePath)
+{
+	std::ifstream file(filePath);
+	if (!file.good())
+	{
+		std::cout << "Failed to open file " << std::filesystem::absolute(filePath) << std::endl;
+		return std::string();
+	}
+	
+	std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+         
+	// Remove BOM if present
+	if (content.size() >= 3 &&
+		static_cast<unsigned char>(content[0]) == 0xEF &&
+		static_cast<unsigned char>(content[1]) == 0xBB &&
+		static_cast<unsigned char>(content[2]) == 0xBF)
+	{
+		content = content.substr(3); // Remove BOM
+	}
+
+	file.close();
+	return content;
 }
