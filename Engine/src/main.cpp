@@ -54,8 +54,6 @@ int main()
 	// setting up vertex data (and buffer(s)) and configuring vertex attributes
 	// ------------------------------------------------------------------------
 	// these are our vertices for a basic rectangle
-	// ------------------------------------------------------------------------
-	// these are our vertices for a basic rectangle
 	float vertices[] = {
 		// positions          // colors           // texture coords
 		0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
@@ -76,8 +74,10 @@ int main()
 
 	// bind and setup VAO and VBO and EBO
 	glBindVertexArray(VAO);
+	
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
@@ -98,6 +98,7 @@ int main()
 	// OpenGL generate texture
 	unsigned int texture;
 	glGenTextures(1, &texture);
+	glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture
 	glBindTexture(GL_TEXTURE_2D, texture);
 	// set the texture wrapping/filtering options on the currently bound texture object
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
@@ -136,9 +137,7 @@ int main()
 		shader.SetFloat("uHorizOffset", horizOffset);
 		
 		// rendering the gd triangles
-		glBindTexture(GL_TEXTURE_2D, texture);
 		glBindVertexArray(VAO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 		
 		// check and call events and swap the buffers
@@ -150,6 +149,8 @@ int main()
 	// optional. deallocating resources
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
+	glDeleteTextures(1, &texture);
 
 	glfwTerminate(); // automatically frees up our memory
 	window = nullptr;
