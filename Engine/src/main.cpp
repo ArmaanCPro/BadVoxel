@@ -66,6 +66,11 @@ int main()
 	 0.5f, -0.5f, 0.0f,
 	 0.0f,  0.5f, 0.0f };
 
+	// VAO bullshits
+	unsigned int VAO;
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+
 	// VBO bullshits
 	unsigned int VBO; // this is our actual VBO.
 	glGenBuffers(1, &VBO); // generate the buffer
@@ -130,6 +135,7 @@ int main()
 	}
 
 	glUseProgram(shaderProgram);
+	glBindVertexArray(VAO);
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
@@ -142,6 +148,8 @@ int main()
 		// rendering commands here
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 		
 		// check and call events and swap the buffers
 		glfwSwapBuffers(window);
