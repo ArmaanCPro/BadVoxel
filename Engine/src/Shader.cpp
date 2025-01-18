@@ -2,6 +2,21 @@
 #include <fstream>
 #include <sstream>
 
+namespace Utility
+{
+	// internal linkage is intentional. Shader.cpp should be the only file even using this function for now
+	static std::string remove_bom(const std::string& str)
+	{
+		if (str.size() >= 3 && 
+			static_cast<unsigned char>(str[0]) == 0xEF &&
+			static_cast<unsigned char>(str[1]) == 0xBB &&
+			static_cast<unsigned char>(str[2]) == 0xBF) {
+			return str.substr(3); // Skip the BOM
+		}
+		return str;
+	}
+}
+
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
 {
 	// retrive the vertex/fragment source code from filePath
@@ -25,8 +40,9 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 		vShaderFile.close();
 		fShaderFile.close();
 		// convert stream into string
-		vertexCode = vShaderStream.str().substr(3, std::string::npos);
-		fragmentCode = fShaderStream.str().substr(3, std::string::npos);
+		vertexCode = vShaderStream.str();
+		vertexCode = Utility::remove_bom(vShaderStream.str());
+		fragmentCode = Utility::remove_bom(fShaderStream.str());
 	}
 	catch (std::ifstream::failure& e)
 	{

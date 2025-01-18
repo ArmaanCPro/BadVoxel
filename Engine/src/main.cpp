@@ -214,7 +214,6 @@ int main()
 
 		// activate shader
 		shader.use();
-		
 
 		// declare transform matrices
 		glm::mat4 view = glm::mat4(1.0f);
@@ -231,8 +230,10 @@ int main()
 		for (GLuint i = 0; i < 10; i++)
 		{
 			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
 			float angle = 20.0f * (float)i;
+			if (i % 3 == 0)
+				angle = (float)glfwGetTime() * 5.0f;
+			model = glm::translate(model, cubePositions[i]);
 			model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
 			shader.SetMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
