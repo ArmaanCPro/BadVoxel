@@ -116,21 +116,31 @@ int main()
 
 	// setting up vertex data (and buffer(s)) and configuring vertex attributes
 	// ------------------------------------------------------------------------
-	// these are our vertices for a basic triangle
+	// these are our vertices for a basic rectangle
 	float vertices[] = {
-		-0.5f, -0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f,
-		 0.0f,  0.5f, 0.0f };
+		 0.5f,  0.5f, 0.0f,		// top right
+		 0.5f, -0.5f, 0.0f,		// bottom right
+		-0.5f, -0.5f, 0.0f,		// bottom left
+		-0.5f,  0.5f, 0.0f		// top left
+	};
+	unsigned int indices[] = {
+		0, 1, 3,	// first triangle
+		1, 2, 3		// second triangle
+	};
 
-	// VAO & VBO bullshits.
-	unsigned int VAO, VBO;
+	// VAO, VBO, AND EBO bullshits.
+	unsigned int VAO, VBO, EBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
-	// bind VAO first, then bind and set vertex buffer(s), and then configure vertex attribute(s)
+	glGenBuffers(1, &EBO);
+	// bind VAO first, then bind and set vertex buffer(s), then bind and set EBO, and then configure vertex attribute(s)
 	glBindVertexArray(VAO);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, VBO); // opengl has many types of buffer objects. vertex buffer object is GL_ARRAY_BUFFER
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // copies our vertices into the currently bound GL_ARRAY_BUFFER buffer (which is our VBO)
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// telling opengl how to interpret our vertex data
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -155,7 +165,8 @@ int main()
 		// drawing a triangle
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		
 		// check and call events and swap the buffers
 		glfwSwapBuffers(window);
@@ -166,6 +177,7 @@ int main()
 	// optional. deallocating resources
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
 	glDeleteProgram(shaderProgram);
 
 	glfwTerminate(); // automatically frees up our memory
