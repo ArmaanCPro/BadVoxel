@@ -6,7 +6,8 @@ project "Engine"
    staticruntime "off"
 
    files { "src/**.h", "src/**.cpp", "shaders/**.glsl", "shaders/**.jpg", "shaders/**.png",
-      "vendor/stb_image/stb_image.h"
+      "vendor/stb_image/stb_image.h",
+      "vendor/glm/glm/**.hpp"
    }
 
    includedirs
@@ -15,7 +16,8 @@ project "Engine"
 
       "vendor/glfw/include",
       "vendor/Glad/include",
-      "vendor/stb_image"
+      "vendor/stb_image",
+      "vendor/glm"
    }
 
    defines
