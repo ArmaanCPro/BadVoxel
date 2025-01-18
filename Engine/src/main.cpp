@@ -130,15 +130,25 @@ int main()
 	};
 
 	// VAO, VBO, AND EBO bullshits.
-	unsigned int VAO, VBO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
+	unsigned int VAO_1, VAO_2, VBO_1, VBO_2;
+	glGenVertexArrays(1, &VAO_1);
+	glGenVertexArrays(1, &VAO_2);
+	glGenBuffers(1, &VBO_1);
+	glGenBuffers(1, &VBO_2);
 	// bind VAO first, then bind and set vertex buffer(s), then bind and set EBO, and then configure vertex attribute(s)
-	glBindVertexArray(VAO);
+	glBindVertexArray(VAO_1);
 
 	// copy vertices array into a vertex buffer
-	glBindBuffer(GL_ARRAY_BUFFER, VBO); // opengl has many types of buffer objects. vertex buffer object is GL_ARRAY_BUFFER
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_1); // opengl has many types of buffer objects. vertex buffer object is GL_ARRAY_BUFFER
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // copies our vertices into the currently bound GL_ARRAY_BUFFER buffer (which is our VBO)
+
+	// telling opengl how to interpret our vertex data
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindVertexArray(VAO_2);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_2);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	// telling opengl how to interpret our vertex data
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -162,9 +172,11 @@ int main()
 
 		// drawing a triangle
 		glUseProgram(shaderProgram);
-		glBindVertexArray(VAO);
+		glBindVertexArray(VAO_1);
 		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindVertexArray(VAO_2);
+		glDrawArrays(GL_TRIANGLES, 3, 6);
 		
 		// check and call events and swap the buffers
 		glfwSwapBuffers(window);
@@ -173,8 +185,8 @@ int main()
 
 
 	// optional. deallocating resources
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
+	glDeleteVertexArrays(1, &VAO_1);
+	glDeleteBuffers(1, &VBO_1);
 	glDeleteProgram(shaderProgram);
 
 	glfwTerminate(); // automatically frees up our memory
