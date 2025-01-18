@@ -182,18 +182,7 @@ std::string readShaderCode(const char* filePath)
 		std::cout << "Failed to open file " << std::filesystem::absolute(filePath) << std::endl;
 		return std::string();
 	}
-	
-	std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-         
-	// Remove BOM if present
-	if (content.size() >= 3 &&
-		static_cast<unsigned char>(content[0]) == 0xEF &&
-		static_cast<unsigned char>(content[1]) == 0xBB &&
-		static_cast<unsigned char>(content[2]) == 0xBF)
-	{
-		content = content.substr(3); // Remove BOM
-	}
 
-	file.close();
-	return content;
+	// we have the substring to remove BOM. dumb stuff but necessary.
+	return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>()).substr(3, std::string::npos);
 }
