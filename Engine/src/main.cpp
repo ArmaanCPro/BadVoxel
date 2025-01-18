@@ -49,7 +49,7 @@ int main()
 		return -1;
 	}
 	glViewport(0, 0, 800, 600);
-	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST); // enable z-buffer depth testing
 
 	// shader initialization bullshits
 	Shader shader("shaders/vertex.glsl", "shaders/fragment.glsl");
@@ -192,6 +192,11 @@ int main()
 	shader.use();
 	glUniform1i(glGetUniformLocation(shader.ID, "texture1"), 0);
 	shader.SetInt("texture2", 1);
+
+
+	// projection matrix doesn't change so we can just send it to the shader once outside of the render loop
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+	shader.SetMat4("projection", projection);
 	
 	// uncomment this call to draw in wireframe polygons.
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -217,12 +222,10 @@ int main()
 
 		// declare transform matrices
 		glm::mat4 view = glm::mat4(1.0f);
-		glm::mat4 projection = glm::mat4(1.0f);
-		projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
-		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-
-		// send the matrices to shader
-		shader.SetMat4("projection", projection); 		// the projection matrix should be set outside of the loop because it rarely changes
+		const float radius = 10.0f;
+		float camX = (float)sin(glfwGetTime()) * radius;
+		float camZ = (float)cos(glfwGetTime()) * radius;
+		view = glm::lookAt(glm::vec3{ camX, 0.0f, camZ }, glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ 0.0f, 1.0f, 0.0f });
 		shader.SetMat4("view", view);
 		
 		// rendering the gd triangles
