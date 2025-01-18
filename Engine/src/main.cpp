@@ -20,9 +20,9 @@ const unsigned int SCREEN_WIDTH = 800;
 const unsigned int SCREEN_HEIGHT = 600;
 
 // camera statics
-static glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
-static glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-static glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
+glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 
 // delta time
 float deltaTime = 0.0f; // time between cur frame and last frame
@@ -213,13 +213,14 @@ int main()
 	// render loop
 	while (!glfwWindowShouldClose(window))
 	{
-		// input
-		processInput(window);
-
-		// delta time calculations
+		// delta time bullshits
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
+		
+		// input
+		processInput(window);
+
 
 		// rendering commands here
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -234,9 +235,8 @@ int main()
 		// activate shader
 		shader.use();
 
-		// declare transform matrices
-		glm::mat4 view = glm::mat4(1.0f);
-		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+		// camera/view transform
+		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 		shader.SetMat4("view", view);
 		
 		// rendering the gd triangles
