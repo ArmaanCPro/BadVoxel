@@ -30,6 +30,7 @@ float deltaTime = 0.0f; // time between cur frame and last frame
 float lastFrame = 0.0f; // time of last frame
 
 // mouse bullshits
+bool firstMouse = true;
 float lastX = SCREEN_WIDTH / 2.0f;
 float lastY = SCREEN_HEIGHT / 2.0f;
 float yaw = -90.0f;
@@ -308,6 +309,12 @@ void processInput(GLFWwindow* window)
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
+	if (firstMouse) // initialized as true
+	{
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
 	float xoffset = (float)xpos - lastX;
 	float yoffset = lastY - (float)ypos; // reversed since y-coordinates range from bottom to top
 	lastX = (float)xpos;
