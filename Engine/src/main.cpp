@@ -3,19 +3,17 @@
 #include <filesystem>
 #include <Windows.h>
 
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#include "Shader.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
-std::string readShaderCode(const char* filePath);
 
 // screen settings
 const unsigned int SCREEN_WIDTH = 800;
 const unsigned int SCREEN_HEIGHT = 600;
-
-std::string vertexShaderSource = readShaderCode("shaders/vertex.glsl");
-std::string fragmentShaderSource = readShaderCode("shaders/fragment.glsl");
 
 int main()
 {
@@ -49,48 +47,9 @@ int main()
 	glViewport(0, 0, 800, 600);
 
 
-	// building and compiling shader program
-	// -------------------------------------
 	// shader initialization bullshits
-	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	unsigned int shaderProgram = glCreateProgram();
-	// setting up shader sources
-	const char* temp = vertexShaderSource.c_str();
-	glShaderSource(vertexShader, 1, &temp, nullptr);
-	glCompileShader(vertexShader);
-	const char* temp2 = fragmentShaderSource.c_str();
-	glShaderSource(fragmentShader, 1, &temp2, nullptr);
-	glCompileShader(fragmentShader);
-	// link the program
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-
-#ifdef BV_DEBUG
-	{
-		int success;
-		char infoLog[512];
-		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-		if (!success) {
-			glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-			std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-		}
-
-		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-		if (!success) {
-			glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-			std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-		}
-
-		glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-		if (!success) {
-			glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
-			std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-		}
-	}
-#endif
-
+	Shader shader("shaders/vertex.glsl", "shaders/fragment.glsl");
+	
 	// setting up vertex data (and buffer(s)) and configuring vertex attributes
 	// ------------------------------------------------------------------------
 	// these are our vertices for a basic rectangle
@@ -147,7 +106,7 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		
-		glUseProgram(shaderProgram);
+		shader.use();
 		
 		// rendering the gd triangles
 		glBindVertexArray(VAOs[0]);
@@ -164,7 +123,6 @@ int main()
 	// optional. deallocating resources
 	glDeleteVertexArrays(2, VAOs);
 	glDeleteBuffers(2, VBOs);
-	glDeleteProgram(shaderProgram);
 
 	glfwTerminate(); // automatically frees up our memory
 	window = nullptr;
@@ -180,17 +138,4 @@ void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
-}
-
-std::string readShaderCode(const char* filePath)
-{
-	std::ifstream file(filePath);
-	if (!file.good())
-	{
-		std::cout << "Failed to open file " << std::filesystem::absolute(filePath) << std::endl;
-		return std::string();
-	}
-
-	// we have the substring to remove BOM. dumb stuff but necessary.
-	return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>()).substr(3, std::string::npos);
 }
