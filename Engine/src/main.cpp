@@ -42,6 +42,17 @@ int main()
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+	// these are our vertices for a basic triangle
+	float vertices[] = {
+	-0.5f, -0.5f, 0.0f,
+	 0.5f, -0.5f, 0.0f,
+	 0.0f,  0.5f, 0.0f };
+
+	unsigned int VBO; // this is our actual VBO.
+	glGenBuffers(1, &VBO); // generate the buffer
+	glBindBuffer(GL_ARRAY_BUFFER, VBO); // opengl has many types of buffer objects. vertex buffer object is GL_ARRAY_BUFFER
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // copies our vertices into the currently bound GL_ARRAY_BUFFER buffer (which is our VBO)
+
 	while (!glfwWindowShouldClose(window))
 	{
 		// input
@@ -56,6 +67,7 @@ int main()
 		glfwPollEvents();
 	}
 
-	glfwTerminate();
+	glfwTerminate(); // automatically frees up our memory
+	window = nullptr;
 	return 0;
 }
