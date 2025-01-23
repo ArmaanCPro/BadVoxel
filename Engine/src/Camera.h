@@ -115,7 +115,7 @@ public:
             Position += Right * velocity;
 
         // make sure the camera stays at ground level
-        Position.y = 0.0f; // keeps camera on xz plane like an fps stype camera
+        Position.y = 0.0f; // keeps camera on xz plane like an fps style camera
 
         if (direction == UP)
             Position += WorldUp * velocity;

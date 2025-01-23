@@ -12,11 +12,10 @@
 
 #include "Camera.h"
 #include "Shader.h"
+#include "window.h"
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow *window);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void processInput(GLFWwindow* window);
+void processMouse(BV::window& window);
 
 // screen settings
 const unsigned int SCREEN_WIDTH = 800;
@@ -39,39 +38,9 @@ bool firstMouse = true;
 
 int main()
 {
-	// initialization
-	// --------------
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef PL_MACOSX
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-
-	// glfw window creation
-	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Dangerfield", nullptr, nullptr);
-	if (window == nullptr)
-	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-	glfwMakeContextCurrent(window);
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	glfwSetCursorPosCallback(window, mouse_callback);
-	glfwSetScrollCallback(window, scroll_callback);
+	BV::window Window(SCREEN_WIDTH, SCREEN_HEIGHT);
 	
-	// loading glad opengl function pointers
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
-		return -1;
-	}
-	glViewport(0, 0, 800, 600);
-	glEnable(GL_DEPTH_TEST); // enable z-buffer depth testing
-
+	
 	// shader initialization bullshits
 	Shader shader("shaders/vertex.glsl", "shaders/fragment.glsl");
 	
@@ -138,9 +107,9 @@ int main()
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-
+	
     glBindVertexArray(VAO);
-
+	
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
@@ -218,8 +187,26 @@ int main()
 	// uncomment this call to draw in wireframe polygons.
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+	float lastMouseX = 0.0f, lastMouseY = 0.0f;
+	Window.AddMouseEvent([&](float xpos, float ypos)
+	{
+		if (firstMouse)
+		{
+			lastMouseX = xpos;
+			lastMouseY = ypos;
+			firstMouse = false;
+		}
+		float xoffset = xpos - lastMouseX;
+		float yoffset = lastMouseY - ypos; // reversed since y-coordinates go from bottom to top
+			
+		lastMouseX = xpos;
+		lastMouseY = ypos;
+			
+		camera.ProcessMouseMovement(xoffset, yoffset);
+	});
+
 	// render loop
-	while (!glfwWindowShouldClose(window))
+	while (!glfwWindowShouldClose(Window.getGLFWwindow()))
 	{
 		// delta time bullshits
 		float currentFrame = (float)glfwGetTime();
@@ -227,9 +214,8 @@ int main()
 		lastFrame = currentFrame;
 		
 		// input
-		processInput(window);
-
-
+		processInput(Window.getGLFWwindow());
+		
 		// rendering commands here
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -267,25 +253,19 @@ int main()
 		}
 		
 		// check and call events and swap the buffers
-		glfwSwapBuffers(window);
+		glfwSwapBuffers(Window.getGLFWwindow());
 		glfwPollEvents();
 	}
-
-
+	
+	
 	// optional. deallocating resources
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteTextures(1, &texture1);
 	glDeleteTextures(1, &texture2);
-
-	glfwTerminate(); // automatically frees up our memory
-	window = nullptr;
+	
+	
 	return 0;
-}
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-	glViewport(0, 0, width, height);
 }
 
 void processInput(GLFWwindow* window)
@@ -308,28 +288,8 @@ void processInput(GLFWwindow* window)
 		//cameraPos -= cameraSpeed * cameraUp;
 }
 
-void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+void processMouse(BV::window& Window)
 {
-	float xpos = (float)xposIn;
-	float ypos = (float)yposIn;
-
-	if (firstMouse)
-	{
-		lastX = xpos;
-		lastY = ypos;
-		firstMouse = false;
-	}
-
-	float xoffset = xpos - lastX;
-	float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-
-	lastX = xpos;
-	lastY = ypos;
-
-	camera.ProcessMouseMovement(xoffset, yoffset);
-}
-
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
-	camera.ProcessMouseScroll((float)yoffset);
+	//camera.ProcessMouseMovement(Window.mouseX - Window.last_mouseX, Window.last_mouseY - Window.mouseY);
+	//camera.ProcessMouseScroll(Window.getScrollOffset());
 }
