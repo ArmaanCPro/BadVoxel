@@ -12,7 +12,7 @@ namespace BV
 class BV::window
 {
 public:
-	window(int scr_width = 600, int scr_height = 800);
+	window(int scr_width, int scr_height);
 	~window();
 	window(const window&) = delete;
 	window& operator=(const window&) = delete;
@@ -21,11 +21,8 @@ public:
 	GLFWwindow* getGLFWwindow() const { return m_window; }
 
 	bool isKeyPressed(int keycode) { return glfwGetKey(m_window, keycode) == GLFW_PRESS; }
-
-	// add callbacks for keyboard events
-	void AddKeyEvent(std::function<void(int, int, int, int)> callback) { m_key_callbacks.push_back(callback); }
-	const std::vector<std::function<void(int, int, int, int)>>& GetKeyCallbacks() const { return m_key_callbacks; }
-	//bool isKeyDown(int keycode) { return key_states[keycode] == true; } 
+	// width, height
+	std::pair<int, int> getWindowDimensions() { std::pair<int, int> dims; glfwGetWindowSize(m_window, &dims.first, &dims.second); return dims; }
 	
 	// add callbacks for mouse events
 	void AddMouseEvent(std::function<void(float, float)> callback) { m_mouse_callbacks.push_back(std::move(callback)); }
@@ -38,9 +35,6 @@ public:
 	
 	void setScrollOffset(float yoffset) { m_scroll_offset_y = yoffset; }
 	float getScrollOffset() const { return m_scroll_offset_y; }
-
-	
-	std::unordered_map<int, bool> key_states;
 	
 private:
 	GLFWwindow* m_window = nullptr;
@@ -53,7 +47,6 @@ private:
 	 * mods - i.e. GLFW_MOD_SHIFT
 	 */
 	std::vector<std::function<void(int key, int scancode, int action, int mods)>> m_key_callbacks;
-	// tracks keys being pressed or released
 	
 	float m_scroll_offset_y = 0.0f;
 };

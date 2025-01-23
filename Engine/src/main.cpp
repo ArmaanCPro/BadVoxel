@@ -17,8 +17,8 @@
 void processInput(BV::window* windowIn);
 
 // screen settings
-const unsigned int SCREEN_WIDTH = 800;
-const unsigned int SCREEN_HEIGHT = 600;
+constexpr unsigned int SCREEN_WIDTH = 800;
+constexpr unsigned int SCREEN_HEIGHT = 600;
 
 // camera statics
 glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
@@ -204,13 +204,6 @@ int main()
 			
 		camera.ProcessMouseMovement(xoffset, yoffset);
 	});
-	Window.AddKeyEvent([&](int key, int scancode, int action, int mods)
-	{
-		if (action == GLFW_PRESS)
-			Window.key_states[key] = true;
-		else if (action == GLFW_RELEASE)
-			Window.key_states[key] = false;
-	});
 
 	// render loop
 	while (!glfwWindowShouldClose(Window.getGLFWwindow()))
@@ -276,20 +269,20 @@ int main()
 
 void processInput(BV::window* windowIn)
 {
-	if (windowIn->key_states[GLFW_KEY_ESCAPE] == true)
+	if (windowIn->isKeyPressed(GLFW_KEY_ESCAPE) == true)
 		glfwSetWindowShouldClose(windowIn->getGLFWwindow(), true);
 
-	if (windowIn->key_states[GLFW_KEY_W] == true)
+	if (windowIn->isKeyPressed(GLFW_KEY_W) == true)
 		camera.ProcessKeyboard(FORWARD, deltaTime);
-	if (windowIn->key_states[GLFW_KEY_S] == true)
+	if (windowIn->isKeyPressed(GLFW_KEY_S) == true)
 		camera.ProcessKeyboard(BACKWARD, deltaTime);
-	if (windowIn->key_states[GLFW_KEY_A] == true)
+	if (windowIn->isKeyPressed(GLFW_KEY_A) == true)
 		camera.ProcessKeyboard(LEFT, deltaTime);
-	if (windowIn->key_states[GLFW_KEY_D] == true)
+	if (windowIn->isKeyPressed(GLFW_KEY_D) == true)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
 
-	if (windowIn->key_states[GLFW_KEY_SPACE] == true)
+	if (windowIn->isKeyPressed(GLFW_KEY_SPACE) == true)
 		camera.ProcessKeyboard(UP, deltaTime);
-	if (windowIn->key_states[GLFW_KEY_LEFT_CONTROL] == true)
+	if (windowIn->isKeyPressed(GLFW_KEY_LEFT_CONTROL) == true)
 		camera.ProcessKeyboard(DOWN, deltaTime);
 }
