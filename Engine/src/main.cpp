@@ -14,8 +14,7 @@
 #include "Shader.h"
 #include "window.h"
 
-void processInput(GLFWwindow* window);
-void processMouse(BV::window& window);
+void processInput(BV::window* windowIn);
 
 // screen settings
 const unsigned int SCREEN_WIDTH = 800;
@@ -26,15 +25,17 @@ glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 
-// delta time
-float deltaTime = 0.0f; // time between cur frame and last frame
-float lastFrame = 0.0f; // time of last frame
-
 // mouse bullshits
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = SCREEN_WIDTH / 2.0f;
 float lastY = SCREEN_HEIGHT / 2.0f;
 bool firstMouse = true;
+
+
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+float deltaTime = 0.0f; // time between cur frame and last frame
+float lastFrame = 0.0f; // time of last frame
+
+float lastMouseX = 0.0f, lastMouseY = 0.0f;
 
 int main()
 {
@@ -186,8 +187,7 @@ int main()
 	
 	// uncomment this call to draw in wireframe polygons.
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-	float lastMouseX = 0.0f, lastMouseY = 0.0f;
+	
 	Window.AddMouseEvent([&](float xpos, float ypos)
 	{
 		if (firstMouse)
@@ -204,6 +204,13 @@ int main()
 			
 		camera.ProcessMouseMovement(xoffset, yoffset);
 	});
+	Window.AddKeyEvent([&](int key, int scancode, int action, int mods)
+	{
+		if (action == GLFW_PRESS)
+			Window.key_states[key] = true;
+		else if (action == GLFW_RELEASE)
+			Window.key_states[key] = false;
+	});
 
 	// render loop
 	while (!glfwWindowShouldClose(Window.getGLFWwindow()))
@@ -214,7 +221,7 @@ int main()
 		lastFrame = currentFrame;
 		
 		// input
-		processInput(Window.getGLFWwindow());
+		processInput(&Window);
 		
 		// rendering commands here
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -264,32 +271,25 @@ int main()
 	glDeleteTextures(1, &texture1);
 	glDeleteTextures(1, &texture2);
 	
-	
 	return 0;
 }
 
-void processInput(GLFWwindow* window)
+void processInput(BV::window* windowIn)
 {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, GLFW_TRUE);
+	if (windowIn->key_states[GLFW_KEY_ESCAPE] == true)
+		glfwSetWindowShouldClose(windowIn->getGLFWwindow(), true);
 
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	if (windowIn->key_states[GLFW_KEY_W] == true)
 		camera.ProcessKeyboard(FORWARD, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	if (windowIn->key_states[GLFW_KEY_S] == true)
 		camera.ProcessKeyboard(BACKWARD, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	if (windowIn->key_states[GLFW_KEY_A] == true)
 		camera.ProcessKeyboard(LEFT, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	if (windowIn->key_states[GLFW_KEY_D] == true)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
 
-	//if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		//cameraPos += cameraSpeed * cameraUp;
-	//if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-		//cameraPos -= cameraSpeed * cameraUp;
-}
-
-void processMouse(BV::window& Window)
-{
-	//camera.ProcessMouseMovement(Window.mouseX - Window.last_mouseX, Window.last_mouseY - Window.mouseY);
-	//camera.ProcessMouseScroll(Window.getScrollOffset());
+	if (windowIn->key_states[GLFW_KEY_SPACE] == true)
+		camera.ProcessKeyboard(UP, deltaTime);
+	if (windowIn->key_states[GLFW_KEY_LEFT_CONTROL] == true)
+		camera.ProcessKeyboard(DOWN, deltaTime);
 }

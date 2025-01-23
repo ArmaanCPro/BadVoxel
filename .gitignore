@@ -4,6 +4,8 @@
 bin/
 bin-int/
 
+*.user
+
 # Files (windows)
 **.vcxproj
 **.vcxproj.user

@@ -27,6 +27,18 @@ namespace glfw_callbacks
 		if (win_instance)
 			win_instance->setScrollOffset((float)yoffset);
 	}
+
+	static void key_callback(GLFWwindow* windowIn, int key, int scancode, int action, int mods)
+	{
+		window* win_instance = static_cast<window*>(glfwGetWindowUserPointer(windowIn));
+		if (win_instance)
+		{
+			for (const auto& m : win_instance->GetKeyCallbacks())
+			{
+				m(key, scancode, action, mods);
+			}
+		}
+	}
 }
 
 window::window(int scr_width, int scr_height)
@@ -52,6 +64,7 @@ window::window(int scr_width, int scr_height)
 	glfwSetFramebufferSizeCallback(m_window, glfw_callbacks::framebuffer_size_callback);
 	glfwSetCursorPosCallback(m_window, glfw_callbacks::mouse_callback);
 	glfwSetScrollCallback(m_window, glfw_callbacks::scroll_callback);
+	glfwSetKeyCallback(m_window, glfw_callbacks::key_callback);
 
 	// loading glad opengl func pointers
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
