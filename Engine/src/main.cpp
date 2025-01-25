@@ -14,7 +14,7 @@
 #include "Shader.h"
 #include "window.h"
 
-void processInput(BV::window* windowIn);
+void processInput(const BV::window& windowIn);
 
 void APIENTRY OGL_DebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
                                  GLsizei length, const GLchar* message, const void* userParam)
@@ -148,7 +148,7 @@ int main()
 		lastFrame = currentFrame;
 		
 		// input
-		processInput(&Window);
+		processInput(Window);
 		
 		// rendering commands here
 		auto scrDims = Window.getWindowDimensions();
@@ -165,22 +165,22 @@ int main()
 	return 0;
 }
 
-void processInput(BV::window* windowIn)
+void processInput(const BV::window& windowIn)
 {
-	if (windowIn->isKeyPressed(GLFW_KEY_ESCAPE) == true)
-		glfwSetWindowShouldClose(windowIn->getGLFWwindow(), true);
+	if (windowIn.isKeyPressed(GLFW_KEY_ESCAPE) == true)
+		glfwSetWindowShouldClose(windowIn.getGLFWwindow(), true);
 
-	if (windowIn->isKeyPressed(GLFW_KEY_W) == true)
+	if (windowIn.isKeyPressed(GLFW_KEY_W) == true)
 		camera.ProcessKeyboard(FORWARD, deltaTime);
-	if (windowIn->isKeyPressed(GLFW_KEY_S) == true)
+	if (windowIn.isKeyPressed(GLFW_KEY_S) == true)
 		camera.ProcessKeyboard(BACKWARD, deltaTime);
-	if (windowIn->isKeyPressed(GLFW_KEY_A) == true)
+	if (windowIn.isKeyPressed(GLFW_KEY_A) == true)
 		camera.ProcessKeyboard(LEFT, deltaTime);
-	if (windowIn->isKeyPressed(GLFW_KEY_D) == true)
+	if (windowIn.isKeyPressed(GLFW_KEY_D) == true)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
 
-	if (windowIn->isKeyPressed(GLFW_KEY_SPACE) == true)
+	if (windowIn.isKeyPressed(GLFW_KEY_SPACE) == true)
 		camera.ProcessKeyboard(UP, deltaTime);
-	if (windowIn->isKeyPressed(GLFW_KEY_LEFT_CONTROL) == true)
+	if (windowIn.isKeyPressed(GLFW_KEY_LEFT_CONTROL) == true)
 		camera.ProcessKeyboard(DOWN, deltaTime);
 }

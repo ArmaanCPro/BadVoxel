@@ -8,6 +8,7 @@ namespace BV
     class block;
 }
 
+// todo: implement blocks in renderer. also need to know location of quads
 class BV::block
 {
 public:
@@ -18,48 +19,54 @@ private:
     glm::vec3 m_pos = {0};
     glm::vec3 m_color = {0};
     // contains position and texcoord, also in model space
-    float vertices[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+    static constexpr float vertices[] = {
+                // Positions              // Texture Coords
+        // Back face
+        -1.0f, -1.0f, -1.0f,      0.0f, 0.0f, // bottom-left
+         1.0f, -1.0f, -1.0f,      1.0f, 0.0f, // bottom-right
+         1.0f,  1.0f, -1.0f,      1.0f, 1.0f, // top-right
+         1.0f,  1.0f, -1.0f,      1.0f, 1.0f, // top-right
+        -1.0f,  1.0f, -1.0f,      0.0f, 1.0f, // top-left
+        -1.0f, -1.0f, -1.0f,      0.0f, 0.0f, // bottom-left
 
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        // Front face
+        -1.0f, -1.0f,  1.0f,      0.0f, 0.0f, // bottom-left
+         1.0f, -1.0f,  1.0f,      1.0f, 0.0f, // bottom-right
+         1.0f,  1.0f,  1.0f,      1.0f, 1.0f, // top-right
+         1.0f,  1.0f,  1.0f,      1.0f, 1.0f, // top-right
+        -1.0f,  1.0f,  1.0f,      0.0f, 1.0f, // top-left
+        -1.0f, -1.0f,  1.0f,      0.0f, 0.0f, // bottom-left
 
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        // Left face
+        -1.0f,  1.0f,  1.0f,      1.0f, 0.0f, // top-right
+        -1.0f,  1.0f, -1.0f,      1.0f, 1.0f, // top-left
+        -1.0f, -1.0f, -1.0f,      0.0f, 1.0f, // bottom-left
+        -1.0f, -1.0f, -1.0f,      0.0f, 1.0f, // bottom-left
+        -1.0f, -1.0f,  1.0f,      0.0f, 0.0f, // bottom-right
+        -1.0f,  1.0f,  1.0f,      1.0f, 0.0f, // top-right
 
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        // Right face
+         1.0f,  1.0f,  1.0f,      1.0f, 0.0f, // top-left
+         1.0f,  1.0f, -1.0f,      1.0f, 1.0f, // top-right
+         1.0f, -1.0f, -1.0f,      0.0f, 1.0f, // bottom-right
+         1.0f, -1.0f, -1.0f,      0.0f, 1.0f, // bottom-right
+         1.0f, -1.0f,  1.0f,      0.0f, 0.0f, // bottom-left
+         1.0f,  1.0f,  1.0f,      1.0f, 0.0f, // top-left
 
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        // Bottom face
+        -1.0f, -1.0f, -1.0f,      0.0f, 1.0f, // top-right
+         1.0f, -1.0f, -1.0f,      1.0f, 1.0f, // top-left
+         1.0f, -1.0f,  1.0f,      1.0f, 0.0f, // bottom-left
+         1.0f, -1.0f,  1.0f,      1.0f, 0.0f, // bottom-left
+        -1.0f, -1.0f,  1.0f,      0.0f, 0.0f, // bottom-right
+        -1.0f, -1.0f, -1.0f,      0.0f, 1.0f, // top-right
 
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+        // Top face
+        -1.0f,  1.0f, -1.0f,      0.0f, 1.0f, // top-left
+         1.0f,  1.0f, -1.0f,      1.0f, 1.0f, // top-right
+         1.0f,  1.0f,  1.0f,      1.0f, 0.0f, // bottom-right
+         1.0f,  1.0f,  1.0f,      1.0f, 0.0f, // bottom-right
+        -1.0f,  1.0f,  1.0f,      0.0f, 0.0f, // bottom-left
+        -1.0f,  1.0f, -1.0f,      0.0f, 1.0f  // top-left
     };
-    //std::string m_path_to_texture;
 };

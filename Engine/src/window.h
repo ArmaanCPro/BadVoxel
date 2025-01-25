@@ -21,7 +21,7 @@ public:
 	GLFWwindow* getGLFWwindow() const { return m_window; }
 
 	// returns if a key is pressed. should be used for input processing.
-	bool isKeyPressed(int keycode) { return glfwGetKey(m_window, keycode) == GLFW_PRESS; }
+	bool isKeyPressed(int keycode) const { return glfwGetKey(m_window, keycode) == GLFW_PRESS; }
 	// width, height
 	std::pair<int, int> getWindowDimensions() { std::pair<int, int> dims; glfwGetWindowSize(m_window, &dims.first, &dims.second); return dims; }
 	
