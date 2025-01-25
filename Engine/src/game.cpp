@@ -9,10 +9,6 @@ BV::game::game()
     Window(SCREEN_WIDTH, SCREEN_HEIGHT),
     camera(glm::vec3(0.0f, 0.0f, 3.0f))
 {
-#ifdef BV_DEBUG
-    glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(OGL_DebugMessageCallback, 0);
-#endif
     
     Renderer.init();
     Renderer.set_texture("shaders/mc_grass.jpg", GL_RGB);

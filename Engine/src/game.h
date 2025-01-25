@@ -33,12 +33,4 @@ private:
 protected:
 
     void processInput(const BV::window& window);
-
-    static inline void APIENTRY OGL_DebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
-                                 GLsizei length, const GLchar* message, const void* userParam)
-    {
-        std::cerr << "GL CALLBACK: " << (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "")
-                  << " type = " << type << ", severity = " << severity
-                  << ", message = " << message << std::endl;
-    }
 };
