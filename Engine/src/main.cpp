@@ -131,6 +131,13 @@ int main()
 	// TODO: Only the 1 cube out of these two would be drawn, and it is the one called last
 	Renderer.add_cube(glm::vec3{0.0f, 5.0f, -10.0f});
 
+    for (int i = 0; i < 10; i++)
+    {
+        for (int j = 0; j < 10; j++)
+        {
+            Renderer.add_cube(glm::vec3{i * 3, 0.0f, j});
+        }
+    }
 	
 	// render loop
 	while (!glfwWindowShouldClose(Window.getGLFWwindow()))
