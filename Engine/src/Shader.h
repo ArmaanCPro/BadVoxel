@@ -16,6 +16,7 @@ public:
 	unsigned int ID;
 
 	// constructur reads and builds the shader
+	Shader() = default;
 	Shader(const char* vertexPath, const char* fragmentPath);
 	~Shader();
 	Shader(const Shader& other);

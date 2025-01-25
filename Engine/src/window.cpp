@@ -32,9 +32,16 @@ namespace glfw_callbacks
 window::window(int scr_width, int scr_height)
 {
 	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	// 4.3 is necessary for debugging, otherwise 3.3 is good as well
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+#ifdef BV_DEBUG
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+#endif
+
+
 #ifdef PL_MACOSX
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
@@ -61,6 +68,7 @@ window::window(int scr_width, int scr_height)
 		exit(-1);
 	}
 	glViewport(0, 0, scr_width, scr_height);
+
 	glEnable(GL_DEPTH_TEST);
 }
 

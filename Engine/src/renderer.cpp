@@ -7,11 +7,13 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Camera.h"
-#include "stb_image.h"
+#include <stb_image.h>
 
-void BV::renderer::init(std::string vsPath, std::string fsPath)
+#include <algorithm>
+
+void BV::renderer::init()
 {
-    shader = Shader(vsPath.c_str(), fsPath.c_str());
+    shader.use();
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -26,29 +28,72 @@ void BV::renderer::init(std::string vsPath, std::string fsPath)
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    shader.use();
 
     // texture bullshits
     glActiveTexture(GL_TEXTURE0);
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
     // texture wrapping
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
     // texture filtering
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
 void BV::renderer::add_cube(const glm::vec3& position)
 {
     // Cube data for 6 faces
-    const float cubeVertices[] = {
-        // Positions            // Texture Coords
-        -1.0f, -1.0f, -1.0f,    0.0f, 0.0f,  // Bottom face
-         1.0f, -1.0f, -1.0f,    1.0f, 0.0f,
-         1.0f,  1.0f, -1.0f,    1.0f, 1.0f,
-         // [Other vertices for all cube faces] ...
+    constexpr float cubeVertices[] = {
+        // Positions              // Texture Coords
+        // Back face
+        -1.0f, -1.0f, -1.0f,      0.0f, 0.0f, // bottom-left
+         1.0f, -1.0f, -1.0f,      1.0f, 0.0f, // bottom-right
+         1.0f,  1.0f, -1.0f,      1.0f, 1.0f, // top-right
+         1.0f,  1.0f, -1.0f,      1.0f, 1.0f, // top-right
+        -1.0f,  1.0f, -1.0f,      0.0f, 1.0f, // top-left
+        -1.0f, -1.0f, -1.0f,      0.0f, 0.0f, // bottom-left
+
+        // Front face
+        -1.0f, -1.0f,  1.0f,      0.0f, 0.0f, // bottom-left
+         1.0f, -1.0f,  1.0f,      1.0f, 0.0f, // bottom-right
+         1.0f,  1.0f,  1.0f,      1.0f, 1.0f, // top-right
+         1.0f,  1.0f,  1.0f,      1.0f, 1.0f, // top-right
+        -1.0f,  1.0f,  1.0f,      0.0f, 1.0f, // top-left
+        -1.0f, -1.0f,  1.0f,      0.0f, 0.0f, // bottom-left
+
+        // Left face
+        -1.0f,  1.0f,  1.0f,      1.0f, 0.0f, // top-right
+        -1.0f,  1.0f, -1.0f,      1.0f, 1.0f, // top-left
+        -1.0f, -1.0f, -1.0f,      0.0f, 1.0f, // bottom-left
+        -1.0f, -1.0f, -1.0f,      0.0f, 1.0f, // bottom-left
+        -1.0f, -1.0f,  1.0f,      0.0f, 0.0f, // bottom-right
+        -1.0f,  1.0f,  1.0f,      1.0f, 0.0f, // top-right
+
+        // Right face
+         1.0f,  1.0f,  1.0f,      1.0f, 0.0f, // top-left
+         1.0f,  1.0f, -1.0f,      1.0f, 1.0f, // top-right
+         1.0f, -1.0f, -1.0f,      0.0f, 1.0f, // bottom-right
+         1.0f, -1.0f, -1.0f,      0.0f, 1.0f, // bottom-right
+         1.0f, -1.0f,  1.0f,      0.0f, 0.0f, // bottom-left
+         1.0f,  1.0f,  1.0f,      1.0f, 0.0f, // top-left
+
+        // Bottom face
+        -1.0f, -1.0f, -1.0f,      0.0f, 1.0f, // top-right
+         1.0f, -1.0f, -1.0f,      1.0f, 1.0f, // top-left
+         1.0f, -1.0f,  1.0f,      1.0f, 0.0f, // bottom-left
+         1.0f, -1.0f,  1.0f,      1.0f, 0.0f, // bottom-left
+        -1.0f, -1.0f,  1.0f,      0.0f, 0.0f, // bottom-right
+        -1.0f, -1.0f, -1.0f,      0.0f, 1.0f, // top-right
+
+        // Top face
+        -1.0f,  1.0f, -1.0f,      0.0f, 1.0f, // top-left
+         1.0f,  1.0f, -1.0f,      1.0f, 1.0f, // top-right
+         1.0f,  1.0f,  1.0f,      1.0f, 0.0f, // bottom-right
+         1.0f,  1.0f,  1.0f,      1.0f, 0.0f, // bottom-right
+        -1.0f,  1.0f,  1.0f,      0.0f, 0.0f, // bottom-left
+        -1.0f,  1.0f, -1.0f,      0.0f, 1.0f  // top-left
+
     };
 
     // [Transform cubeVertices to world space using position and append them to the renderer's vertex list]
@@ -56,8 +101,10 @@ void BV::renderer::add_cube(const glm::vec3& position)
     model = glm::translate(model, position);
     // don't need rotation and scaling for now
     
-    
+    shader.use();
     shader.SetMat4("model", model);
+
+    load_vertices(cubeVertices, 180);
 }
 
 void BV::renderer::load_vertices(const float* verts, size_t size)
@@ -73,7 +120,8 @@ void BV::renderer::draw_vertices(const Camera &camera, float screenWidth, float 
 {
     if (wireframe)
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
+    else
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     shader.use();
     
     glm::mat4 view = camera.GetViewMatrix();
@@ -81,16 +129,23 @@ void BV::renderer::draw_vertices(const Camera &camera, float screenWidth, float 
 
     glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), screenWidth / screenHeight, 0.1f, 100.0f);
     shader.SetMat4("projection", projection);
-    
+
+    //
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // bind textures on corresponding texture units
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, (int)vertices.size() / 5); // Assuming 5 floats per vertex (pos + texture)
     glBindVertexArray(0);
 }
 
-void BV::renderer::set_texture(std::string texturePath)
+void BV::renderer::set_texture(const std::string& texturePath)
 {
     glActiveTexture(GL_TEXTURE0);
-    glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
     
     int width, height, nrChannels;
@@ -98,7 +153,7 @@ void BV::renderer::set_texture(std::string texturePath)
     unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
     if (data)
     {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     else
