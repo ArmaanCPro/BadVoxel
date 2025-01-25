@@ -45,5 +45,5 @@ private:
     Shader shader;
     unsigned int textureID = 0;
     std::vector<float> vertices;
-    std::vector<glm::vec3> translations;
+    std::vector<glm::mat4> model_tforms;
 };

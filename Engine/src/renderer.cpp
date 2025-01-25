@@ -100,21 +100,16 @@ void BV::renderer::add_cube(const glm::vec3& position)
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, position);
     model = glm::scale(model, glm::vec3(0.5f));
-    translations.push_back(position);
-    // don't need rotation and scaling for now
-    
-    //shader.use();
-    //shader.SetMat4("model", model);
+    model_tforms.push_back(model);
+    // don't need rotation
 
     load_vertices(cubeVertices, 180);
 }
 
 void BV::renderer::load_vertices(const float* verts, size_t size)
 {
-    for (size_t i = 0; i < size; i++)
-    {
-        vertices.push_back(verts[i]);
-    }
+    std::copy(verts, verts + size, std::back_inserter(vertices));
+    
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 }
 
@@ -141,12 +136,11 @@ void BV::renderer::draw_vertices(const Camera &camera, float screenWidth, float 
     glBindTexture(GL_TEXTURE_2D, textureID);
 
     glBindVertexArray(VAO);
+    // / 180 because there are 180 floats in one cube
     for (size_t i = 0; i < vertices.size() / 180; i++)
     {
 	    glm::mat4 model = glm::mat4(1.0f);
-		float angle = 20.0f * (float)i;
-		model = glm::translate(model, translations[i]);
-		model = glm::scale(model, glm::vec3(0.5f));
+        model *= model_tforms[i];
 		shader.SetMat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
     }
