@@ -90,6 +90,8 @@ void BV::renderer::draw_vertices(const Camera &camera, float screenWidth, float 
 void BV::renderer::set_texture(std::string texturePath)
 {
     glActiveTexture(GL_TEXTURE0);
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
     
     int width, height, nrChannels;
     stbi_set_flip_vertically_on_load(true);
@@ -110,4 +112,13 @@ void BV::renderer::set_texture(std::string texturePath)
     
     //tell opengl for each sampler which texture unit it belongs
     shader.SetInt("texture1", 0);
+}
+void BV::renderer::reset()
+{
+    vertices.clear();
+    vertices.shrink_to_fit();
+
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteTextures(1, &textureID);
 }
