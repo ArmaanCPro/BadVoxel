@@ -53,7 +53,7 @@ void BV::game::update_model()
     float currentFrame = (float)glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
-
+    
     // input
     processInput(Window);
 }

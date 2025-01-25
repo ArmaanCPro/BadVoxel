@@ -93,14 +93,13 @@ void BV::renderer::add_cube(const glm::vec3& position)
          1.0f,  1.0f,  1.0f,      1.0f, 0.0f, // bottom-right
         -1.0f,  1.0f,  1.0f,      0.0f, 0.0f, // bottom-left
         -1.0f,  1.0f, -1.0f,      0.0f, 1.0f  // top-left
-
     };
 
     // [Transform cubeVertices to world space using position and append them to the renderer's vertex list]
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, position);
     model = glm::scale(model, glm::vec3(0.5f));
-    model_tforms.push_back(model);
+    model_tforms.emplace_back(model);
     // don't need rotation
 
     load_vertices(cubeVertices, 180);
@@ -144,7 +143,6 @@ void BV::renderer::draw_vertices(const Camera &camera, float screenWidth, float 
 		shader.SetMat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
     }
-    glDrawArrays(GL_TRIANGLES, 0, (int)vertices.size() / 5); // Assuming 5 floats per vertex (pos + texture)
     glBindVertexArray(0);
 }
 

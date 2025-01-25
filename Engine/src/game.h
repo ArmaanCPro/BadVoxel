@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Camera.h"
 #include "renderer.h"
+#include "indexed_renderer.h"
 #include "window.h"
 
 namespace BV
