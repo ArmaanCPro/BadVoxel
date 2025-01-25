@@ -99,10 +99,12 @@ void BV::renderer::add_cube(const glm::vec3& position)
     // [Transform cubeVertices to world space using position and append them to the renderer's vertex list]
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, position);
+    model = glm::scale(model, glm::vec3(0.5f));
+    translations.push_back(position);
     // don't need rotation and scaling for now
     
-    shader.use();
-    shader.SetMat4("model", model);
+    //shader.use();
+    //shader.SetMat4("model", model);
 
     load_vertices(cubeVertices, 180);
 }
@@ -139,6 +141,15 @@ void BV::renderer::draw_vertices(const Camera &camera, float screenWidth, float 
     glBindTexture(GL_TEXTURE_2D, textureID);
 
     glBindVertexArray(VAO);
+    for (size_t i = 0; i < vertices.size() / 180; i++)
+    {
+	    glm::mat4 model = glm::mat4(1.0f);
+		float angle = 20.0f * (float)i;
+		model = glm::translate(model, translations[i]);
+		model = glm::scale(model, glm::vec3(0.5f));
+		shader.SetMat4("model", model);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
     glDrawArrays(GL_TRIANGLES, 0, (int)vertices.size() / 5); // Assuming 5 floats per vertex (pos + texture)
     glBindVertexArray(0);
 }

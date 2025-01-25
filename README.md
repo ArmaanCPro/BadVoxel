@@ -6,3 +6,5 @@ Not actually a voxel engine, but it is a dumb attempt to recreate some basic min
 - glfw
 - glm
 - glad
+- stb_image
+- premake5

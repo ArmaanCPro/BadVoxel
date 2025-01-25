@@ -129,7 +129,7 @@ int main()
 	//Renderer.load_vertices(vertices, 180);
 	Renderer.add_cube(glm::vec3{0.0f, 0.0f, -10.0f});
 	// TODO: Only the 1 cube out of these two would be drawn, and it is the one called last
-	//Renderer.add_cube(glm::vec3{0.0f, 5.0f, -10.0f});
+	Renderer.add_cube(glm::vec3{0.0f, 5.0f, -10.0f});
 
 	
 	// render loop

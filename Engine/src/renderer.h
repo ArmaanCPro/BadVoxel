@@ -32,9 +32,10 @@ public:
     // this is the final draw call. it should handle all opengl related rendering commands, so you shouldn't have those in your render loop.
     void draw_vertices(const Camera& camera, float screenWidth, float screenHeight, bool wireframe = false);
 
-    /* @params
-     * texturePath - this is the filepath to the texture.
-     * imageFormat - this is the RGBA format of the image. Generally only GL_RGBA or GL_RGB */
+    /**
+     * @param texturePath this is the filepath to the texture.
+     * @param imageFormat this is the RGBA format of the image. Generally only GL_RGBA or GL_RGB
+     */
     void set_texture(const std::string& texturePath, unsigned int imageFormat = GL_RGBA);
 
     // the reset function basically reverts all allocations. is called in the destructor
@@ -44,4 +45,5 @@ private:
     Shader shader;
     unsigned int textureID = 0;
     std::vector<float> vertices;
+    std::vector<glm::vec3> translations;
 };
