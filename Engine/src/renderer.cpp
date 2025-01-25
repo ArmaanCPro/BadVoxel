@@ -143,7 +143,7 @@ void BV::renderer::draw_vertices(const Camera &camera, float screenWidth, float 
     glBindVertexArray(0);
 }
 
-void BV::renderer::set_texture(const std::string& texturePath)
+void BV::renderer::set_texture(const std::string& texturePath, unsigned int imageFormat)
 {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureID);
@@ -153,7 +153,7 @@ void BV::renderer::set_texture(const std::string& texturePath)
     unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
     if (data)
     {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, imageFormat, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     else

@@ -62,7 +62,7 @@ int main()
 	BV::renderer Renderer;
 	Renderer.init();
 	
-	Renderer.set_texture("shaders/awesomeface.png");
+	Renderer.set_texture("shaders/mc_grass.jpg", GL_RGB);
 	
 	Window.AddMouseEvent([&](float xpos, float ypos)
 	{
